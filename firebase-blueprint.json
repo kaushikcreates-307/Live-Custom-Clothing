@@ -1,0 +1,132 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Storefront or kid's rewards catalog merchandise product item.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier of the product." },
+        "name": { "type": "string", "description": "Name of the merchandise product." },
+        "description": { "type": "string", "description": "Description of the product materials and features." },
+        "price": { "type": "number", "description": "Merchant price of the product in USD." },
+        "pointsPrice": { "type": "number", "description": "Kid's rewards price in Star Coins." },
+        "category": { "type": "string", "description": "Product category grouping identifier." },
+        "imageUrl": { "type": "string", "description": "URL link to product visual asset." },
+        "rating": { "type": "number", "description": "Product star score visual rating." },
+        "isPopular": { "type": "boolean", "description": "Flag to mark popular trending products." },
+        "stock": { "type": "number", "description": "Available inventory counts." },
+        "isRewardOnly": { "type": "boolean", "description": "Flag to restrict item strictly to Star Coins rewards." }
+      },
+      "required": ["id", "name", "description", "price", "category", "imageUrl", "rating"]
+    },
+    "ImpactCampaign": {
+      "title": "ImpactCampaign",
+      "description": "Environmental/charitable clothing donation campaign details.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique campaign spot record ID." },
+        "title": { "type": "string", "description": "Title name of the donation event." },
+        "description": { "type": "string", "description": "Description of actions and impact." },
+        "location": { "type": "string", "description": "Physical regional coordinate location description." },
+        "itemsDonated": { "type": "number", "description": "Quantity of custom items donated to families." },
+        "date": { "type": "string", "description": "Date string of the event completion." },
+        "imageUrl": { "type": "string", "description": "Visual illustration link for the activity." }
+      },
+      "required": ["id", "title", "description", "location", "itemsDonated", "date"]
+    },
+    "SocialPost": {
+      "title": "SocialPost",
+      "description": "Community feed social update containing user custom clothing patterns.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique social post record ID." },
+        "userId": { "type": "string", "description": "User account ID of the post author." },
+        "userName": { "type": "string", "description": "Display name of the author." },
+        "userAvatar": { "type": "string", "description": "Emoji indicator of user's avatar." },
+        "userBadge": { "type": "string", "description": "Visual reward tier indicator badge." },
+        "timestamp": { "type": "string", "description": "Time string or relative indicator." },
+        "text": { "type": "string", "description": "Social post textual commentary." },
+        "imageUrl": { "type": "string", "description": "Optional attached custom design graphic." },
+        "likes": { "type": "number", "description": "Reaction count for user interactions." },
+        "likedByUser": { "type": "boolean", "description": "Context check for likes status." },
+        "shares": { "type": "number", "description": "Share counters tracker." },
+        "isCommunityCampaign": { "type": "boolean", "description": "Flag indicating sponsored community campaign spot." }
+      },
+      "required": ["id", "userId", "userName", "userAvatar", "timestamp", "text", "likes", "shares"]
+    },
+    "DailyTask": {
+      "title": "DailyTask",
+      "description": "Daily game task challenge checklist details.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique task ID." },
+        "title": { "type": "string", "description": "Challenge goal title." },
+        "description": { "type": "string", "description": "Instruction details." },
+        "pointsReward": { "type": "number", "description": "Live Star Coins rewarded upon completion." },
+        "xpReward": { "type": "number", "description": "XP points rewarded for level progression." },
+        "progress": { "type": "number", "description": "Current interactive progress level." },
+        "maxProgress": { "type": "number", "description": "Milestone parameter trigger count." },
+        "isCompleted": { "type": "boolean", "description": "Indication if task was finished and reward distributed." },
+        "icon": { "type": "string", "description": "Lucide icon identifier string." }
+      },
+      "required": ["id", "title", "description", "pointsReward", "xpReward", "progress", "maxProgress", "isCompleted", "icon"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Registered credentials, level, and coin balance variables of the community user.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Display name of the user advocate." },
+        "email": { "type": "string", "description": "Electronic credentials email descriptor." },
+        "level": { "type": "number", "description": "Current gamified user level." },
+        "xp": { "type": "number", "description": "Current experience points in level bracket." },
+        "maxXp": { "type": "number", "description": "XP limit to trigger level up events." },
+        "starCoins": { "type": "number", "description": "Spendable coin balance." },
+        "avatar": { "type": "string", "description": "User profile avatar character." },
+        "totalImpactCount": { "type": "number", "description": "Cumulative total clothes donated to date." },
+        "rankName": { "type": "string", "description": "Name descriptor of current advocate tier rank." }
+      },
+      "required": ["name", "email", "level", "xp", "maxXp", "starCoins", "avatar", "totalImpactCount", "rankName"]
+    },
+    "LeaderboardEntry": {
+      "title": "LeaderboardEntry",
+      "description": "Aggregated user levels and Star Coins details for competition lists.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Leaderboard participant unique ID." },
+        "rank": { "type": "number", "description": "Rank position placement." },
+        "name": { "type": "string", "description": "Advocate name." },
+        "avatar": { "type": "string", "description": "Visual character descriptor." },
+        "level": { "type": "number", "description": "Current gameplay levels." },
+        "score": { "type": "number", "description": "Total coins accumulated by the participant." }
+      },
+      "required": ["id", "rank", "name", "avatar", "level", "score"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Merchandises and Rewards database sync."
+    },
+    "/campaigns/{campaignId}": {
+      "schema": "ImpactCampaign",
+      "description": "Active charitable donation campaigns."
+    },
+    "/posts/{postId}": {
+      "schema": "SocialPost",
+      "description": "Community posts feed updates catalog."
+    },
+    "/tasks/{taskId}": {
+      "schema": "DailyTask",
+      "description": "List of active challenges per user."
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User accounts with star coin balances and levels."
+    },
+    "/leaderboard/{entryId}": {
+      "schema": "LeaderboardEntry",
+      "description": "Global leaderboard rankings tracking."
+    }
+  }
+}

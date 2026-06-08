@@ -1,0 +1,91 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // First rule: Global safety net default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Reuseable global access control primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'kaushikcreates@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Products Rules (Storefront & Rewards Catalog)
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isSignedIn() && (
+        isAdmin() || 
+        (request.resource.data.id == productId && isValidId(productId))
+      );
+    }
+
+    // Impact Campaigns Rules
+    match /campaigns/{campaignId} {
+      allow read: if true;
+      allow write: if isSignedIn() && (
+        isAdmin() || 
+        (request.resource.data.id == campaignId && isValidId(campaignId))
+      );
+    }
+
+    // Daily Tasks Rules
+    match /tasks/{taskId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(taskId);
+    }
+
+    // Community Feed Social Posts Rules
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isSignedIn() && 
+                    request.resource.data.userId == request.auth.uid && 
+                    isValidId(postId);
+      allow update: if isSignedIn() && (
+        isAdmin() ||
+        resource.data.userId == request.auth.uid ||
+        request.resource.data.diff(resource.data).affectedKeys().hasAny(['likes', 'comments', 'shares'])
+      );
+      allow delete: if isSignedIn() && (
+        isAdmin() ||
+        resource.data.userId == request.auth.uid
+      );
+    }
+
+    // User Profile Rules
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && (
+        request.auth.uid == userId ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Leaderboard Rankings Rules
+    match /leaderboard/{entryId} {
+      allow read: if true;
+      allow write: if isSignedIn() && (
+        isAdmin() || 
+        isValidId(entryId)
+      );
+    }
+  }
+}

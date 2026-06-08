@@ -1,0 +1,9 @@
+{
+  "apiKey": "AIzaSyFakeKey_Placeholder_For_Live_Firebase",
+  "authDomain": "astral-chariot-03t6m.firebaseapp.com",
+  "projectId": "astral-chariot-03t6m",
+  "storageBucket": "astral-chariot-03t6m.appspot.com",
+  "messagingSenderId": "1234567890",
+  "appId": "1:1234567890:web:abcdef123456",
+  "firestoreDatabaseId": "(default)"
+}
