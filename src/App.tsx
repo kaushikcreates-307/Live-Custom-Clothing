@@ -18,6 +18,8 @@ import Cart from './components/Cart';
 import Leaderboard from './components/Leaderboard';
 import LoginScreen from './components/LoginScreen';
 import BrandLogo from './components/LiveLogo';
+import AdBlock from './components/AdBlock';
+import ProfileSection from './components/ProfileSection';
 
 import { ShoppingBag, Palette, Users, Trophy, Compass, Award, Gift, LogIn, ChevronRight, UserCircle, LogOut, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -43,7 +45,7 @@ import {
 } from './lib/dbSync';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'shop' | 'custom-lab' | 'feed' | 'arcade' | 'impact' | 'rewards' | 'cart' | 'ranks' | 'admin'>('shop');
+  const [activeTab, setActiveTab] = useState<'shop' | 'custom-lab' | 'feed' | 'arcade' | 'impact' | 'rewards' | 'cart' | 'ranks' | 'admin' | 'profile'>('shop');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [currentUserId, setCurrentUserId] = useState<string>('curr-user');
   
@@ -375,6 +377,7 @@ export default function App() {
   // Finalize order simulator checkout
   const handleCheckout = () => {
     const itemsCount = cart.reduce((acc, it) => acc + it.quantity, 0);
+    const totalOrderAmount = cart.reduce((acc, it) => acc + (it.product.price * it.quantity), 0);
     
     // Updates donation stats
     const nextStats = {
@@ -386,12 +389,30 @@ export default function App() {
     setDonationStats(nextStats);
     saveDonationStats(nextStats);
 
-    // Award rewards profile coins/XP
+    const orderItems = cart.map(it => ({
+      parentProductTitle: it.product.name,
+      quantity: it.quantity,
+      details: `${it.selectedColor ? 'Color: ' + it.selectedColor + ', ' : ''}${it.selectedSize ? 'Size: ' + it.selectedSize : ''}`,
+      price: it.product.price,
+    }));
+
+    const newOrder = {
+      id: `LCC-${Math.floor(1000 + Math.random() * 9000)}-${Math.random().toString(36).substring(2, 4).toUpperCase()}`,
+      date: new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }),
+      items: orderItems,
+      totalAmount: totalOrderAmount,
+      status: 'Outreach Processing' as const,
+      trackingNumber: `TRK-CO2-${Math.floor(10000 + Math.random() * 90000)}`,
+      shippingAddress: userProfile.shippingAddress
+    };
+
+    // Award rewards profile coins/XP and add order to purchase history
     setUserProfile((prev) => {
       const updated = {
         ...prev,
         starCoins: prev.starCoins + 150,
-        totalImpactCount: prev.totalImpactCount + itemsCount
+        totalImpactCount: prev.totalImpactCount + itemsCount,
+        orders: [newOrder, ...(prev.orders || [])]
       };
       saveUserProfile(currentUserId, updated);
       return updated;
@@ -400,6 +421,7 @@ export default function App() {
 
     // Clears active cart
     setCart([]);
+    setActiveTab('profile'); // Switch tab to show the placed order!
   };
 
   return (
@@ -424,55 +446,100 @@ export default function App() {
         <>
           {/* Main Core Brand Header navbar panel */}
           <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
-            <div className="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col md:flex-row md:items-center justify-between gap-4">
               
               {/* Brand Logo and Title */}
-              <div onClick={() => setActiveTab('shop')} className="cursor-pointer hover:opacity-90 transition">
+              <div onClick={() => setActiveTab('shop')} className="cursor-pointer hover:opacity-90 transition shrink-0">
                 <BrandLogo />
               </div>
 
-              {/* Gamified Kids Level Progress Ribbon banner */}
-              <div className="flex gap-3.5 items-center bg-slate-50/80 border border-slate-200 rounded-2xl px-4 py-2 text-xs">
-                <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-lg select-none">
-                  {userProfile.avatar}
-                </div>
-                <div className="space-y-1">
-                  <div className="flex justify-between items-center text-[10px] font-mono leading-none">
-                    <span className="font-bold text-slate-800">{userProfile.name}</span>
-                    <span className="text-indigo-600 font-extrabold">Lv. {userProfile.level} ({userProfile.rankName})</span>
+              {/* Top-Right Actions (Profile Progress, Cart and Account Button) */}
+              <div className="flex flex-wrap items-center justify-end gap-3 ml-auto w-full md:w-auto select-none">
+                
+                {/* Gamified Kids Level Progress Ribbon banner (Clickable to view Profile) */}
+                <div 
+                  onClick={() => setActiveTab('profile')}
+                  title="View your Detailed Environmental Profile & Orders"
+                  className={`flex gap-3 items-center bg-slate-50/90 hover:bg-slate-100 border transition rounded-2xl px-3.5 py-1.5 text-xs cursor-pointer ${
+                    activeTab === 'profile' ? 'border-indigo-500 ring-2 ring-indigo-500/10' : 'border-slate-200'
+                  }`}
+                >
+                  <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-150 flex items-center justify-center text-lg shrink-0">
+                    {userProfile.avatar}
                   </div>
-                  <div className="w-36 h-2 bg-slate-200 rounded-full overflow-hidden relative">
-                    <div 
-                      className="h-full bg-gradient-to-r from-brand-pink via-brand-orange to-indigo-650 transition-all duration-700"
-                      style={{ width: `${(userProfile.xp / userProfile.maxXp) * 100}%` }}
-                    />
+                  <div className="space-y-0.5 pr-1">
+                    <div className="flex justify-between items-center gap-3 text-[10px] font-mono leading-none">
+                      <span className="font-extrabold text-slate-800 truncate max-w-[100px]">{userProfile.name}</span>
+                      <span className="text-indigo-650 font-black">Lv.{userProfile.level}</span>
+                    </div>
+                    <div className="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden relative">
+                      <div 
+                        className="h-full bg-gradient-to-r from-brand-pink via-brand-orange to-indigo-650 transition-all duration-700"
+                        style={{ width: `${(userProfile.xp / userProfile.maxXp) * 100}%` }}
+                      />
+                    </div>
                   </div>
-                  <p className="text-[9px] text-slate-400 font-mono text-right">{userProfile.xp}/{userProfile.maxXp} XP to Level-Up</p>
+
+                  <div className="border-l border-slate-200 pl-3 shrink-0 font-mono text-center flex flex-col items-center">
+                    <span className="text-[8px] font-black text-slate-400 block uppercase tracking-wider">STARS</span>
+                    <span className="text-xs font-black text-emerald-700">💰{userProfile.starCoins}</span>
+                  </div>
                 </div>
 
-                <div className="border-l border-slate-200 pl-3.5 shrink-0 font-mono text-center select-none flex flex-col items-center">
-                  <span className="text-[8px] font-bold text-slate-400 block uppercase tracking-wider">BALANCE</span>
-                  <span className="text-sm font-black text-emerald-700">💰 {userProfile.starCoins} Stars</span>
-                  <button 
-                    onClick={() => {
-                      if (isFirebaseSupported && auth) {
-                        signOut(auth).catch((err) => console.error('SignOut error:', err));
-                      }
-                      setIsLoggedIn(false);
-                    }}
-                    title="Log out of Profile"
-                    className="mt-1 text-[9.5px] font-sans font-bold text-slate-400 hover:text-rose-500 flex items-center gap-0.5 transition cursor-pointer"
-                  >
-                    <LogOut size={10} /> Logout
-                  </button>
-                </div>
+                {/* Always-Visible Top Right Cart Button */}
+                <button
+                  id="top-header-cart-btn"
+                  onClick={() => setActiveTab('cart')}
+                  className={`relative flex items-center gap-1.5 py-2 px-3.5 rounded-xl text-xs font-extrabold font-display cursor-pointer transition border shrink-0 ${
+                    activeTab === 'cart'
+                      ? 'bg-indigo-650 border-indigo-650 text-white hover:bg-indigo-750'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+                  }`}
+                >
+                  <span>🛒</span>
+                  <span className="hidden sm:inline text-[11px]">Cart</span>
+                  <span className={`inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-[9px] text-white font-mono font-black ${
+                    cart.length > 0 ? 'bg-rose-500 animate-bounce' : 'bg-slate-400'
+                  }`}>
+                    {cart.reduce((ac, it) => ac + it.quantity, 0)}
+                  </span>
+                </button>
+
+                {/* Always-Visible Top Right Profile & Settings Button */}
+                <button
+                  id="top-header-profile-btn"
+                  onClick={() => setActiveTab('profile')}
+                  className={`flex items-center gap-1 py-2 px-3.5 rounded-xl text-[11px] font-extrabold font-display cursor-pointer transition border shrink-0 ${
+                    activeTab === 'profile'
+                      ? 'bg-slate-900 border-slate-900 text-white'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+                  }`}
+                >
+                  <UserCircle size={13} />
+                  <span className="hidden sm:inline">Profile</span>
+                </button>
+
+                {/* Small Logout shortcut */}
+                <button 
+                  onClick={() => {
+                    if (isFirebaseSupported && auth) {
+                      signOut(auth).catch((err) => console.error('SignOut error:', err));
+                    }
+                    setIsLoggedIn(false);
+                  }}
+                  title="Log out of Profile"
+                  className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 rounded-xl transition cursor-pointer shrink-0"
+                >
+                  <LogOut size={13} />
+                </button>
+
               </div>
 
             </div>
 
         {/* Categories Tab Navigation Header Grid */}
         <div className="bg-slate-50 border-t border-slate-100 font-display">
-          <nav className="max-w-6xl mx-auto px-4 flex overflow-x-auto gap-4 py-2.5 scrollbar-none items-center">
+          <nav className="max-w-6xl mx-auto px-4 flex flex-wrap gap-2 py-2.5 items-center justify-start select-none">
             {[
               { id: 'shop', label: 'Store Catalog', icon: ShoppingBag },
               { id: 'custom-lab', label: 'Custom Print Lab', icon: Palette },
@@ -481,8 +548,7 @@ export default function App() {
               { id: 'ranks', label: 'Leaderboard Tiers', icon: Award },
               { id: 'impact', label: 'Donation Impact Map', icon: Compass },
               { id: 'rewards', label: 'Rewards Ecostore', icon: Gift },
-              { id: 'admin', label: 'Admin Panel ⚙️', icon: Shield },
-            ].map((tab) => {
+            ].concat(userProfile.isAdmin ? [{ id: 'admin', label: 'Admin Panel ⚙️', icon: Shield }] : []).map((tab) => {
               const TabIcon = tab.icon;
               const isActive = activeTab === tab.id;
               
@@ -491,31 +557,17 @@ export default function App() {
                   key={tab.id}
                   id={`nav-tab-${tab.id}`}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shrink-0 transition ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11.5px] font-bold cursor-pointer shrink-0 transition ${
                     isActive
-                      ? 'bg-slate-900 text-white'
-                      : 'text-slate-500 hover:text-slate-800'
+                      ? 'bg-slate-900 text-white shadow-xs animate-pulse-once'
+                      : 'text-slate-505 hover:text-slate-800 hover:bg-slate-200/50 border border-transparent hover:border-slate-200/40'
                   }`}
                 >
-                  <TabIcon size={14} />
+                  <TabIcon size={13} />
                   <span>{tab.label}</span>
                 </button>
               );
             })}
-
-            {/* Shopping Cart Side Shortcut link */}
-            <button
-              id="nav-tab-cart"
-              onClick={() => setActiveTab('cart')}
-              className={`ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 cursor-pointer transition ${
-                activeTab === 'cart'
-                  ? 'bg-indigo-650 text-white'
-                  : 'bg-indigo-50 border border-indigo-100 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800'
-              }`}
-            >
-              <span>🛒</span>
-              <span>Cart ({cart.reduce((ac, it) => ac + it.quantity, 0)})</span>
-            </button>
           </nav>
         </div>
       </header>
@@ -600,6 +652,16 @@ export default function App() {
               />
             )}
 
+            {activeTab === 'profile' && (
+              <ProfileSection
+                userProfile={userProfile}
+                onUpdateProfile={(updated) => {
+                  setUserProfile(updated);
+                  saveUserProfile(currentUserId, updated);
+                }}
+              />
+            )}
+
             {activeTab === 'cart' && (
               <Cart
                 items={cart}
@@ -609,6 +671,11 @@ export default function App() {
                 userCoins={userProfile.starCoins}
               />
             )}
+
+            {/* Premium, eco-conscious non-intrusive Sponsorship Ad blocks on each page */}
+            <div className="mt-12 pt-6 border-t border-slate-150">
+              <AdBlock pageId={activeTab} onEarnCoins={(c, x) => handleAwardCoins(c, x)} />
+            </div>
           </motion.div>
         </AnimatePresence>
       </main>

@@ -97,6 +97,25 @@ export interface ImpactCampaign {
   partners: string[];
 }
 
+export interface ShippingAddress {
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+}
+
+export interface SimulatedOrder {
+  id: string;
+  date: string;
+  items: { parentProductTitle: string; quantity: number; details: string; price: number }[];
+  totalAmount: number;
+  pointsSpent?: number;
+  status: 'Outreach Processing' | 'Hand-Printed' | 'Shipped to Shelter' | 'Completed';
+  trackingNumber?: string;
+  shippingAddress?: ShippingAddress;
+}
+
 export interface UserProfile {
   name: string;
   email: string;
@@ -107,6 +126,11 @@ export interface UserProfile {
   avatar: string;
   totalImpactCount: number; // total clothes donated through their orders
   rankName: string;
+  shippingAddress?: ShippingAddress;
+  phone?: string;
+  bio?: string;
+  orders?: SimulatedOrder[];
+  isAdmin?: boolean;
 }
 
 export interface LeaderboardEntry {

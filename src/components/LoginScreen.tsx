@@ -36,6 +36,8 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   const [agreeTerms, setAgreeTerms] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [showAdminPass, setShowAdminPass] = useState(false);
+  const [adminCode, setAdminCode] = useState('');
 
   const generateEcoName = () => {
     setIsGenerating(true);
@@ -321,6 +323,57 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               </svg>
               <span>Get Connected via Google Account</span>
             </button>
+
+            {/* Secret Admin Logon section */}
+            <div className="pt-4 border-t border-slate-100 flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowAdminPass(!showAdminPass)}
+                id="staff-portal-toggle-btn"
+                className="text-[10px] font-mono text-slate-400 hover:text-indigo-650 transition font-bold uppercase tracking-wider cursor-pointer"
+              >
+                🔐 Staff Terminal Portal
+              </button>
+              
+              {showAdminPass && (
+                <div className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2 text-left animate-in fade-in slide-in-from-top-1">
+                  <p className="text-[9.5px] font-mono text-slate-500 font-extrabold leading-none uppercase">Enter Superuser Access Key</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="password"
+                      placeholder="Admin secret password"
+                      value={adminCode}
+                      onChange={(e) => setAdminCode(e.target.value)}
+                      className="flex-1 bg-white border border-slate-205 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (adminCode === 'ECO-ADMIN-2026' || adminCode === 'admin') {
+                          onLoginSuccess({
+                            name: 'System Admin Operator',
+                            email: 'admin@livecustomclothing.com',
+                            level: 10,
+                            xp: 940,
+                            maxXp: 1000,
+                            starCoins: 9999,
+                            avatar: '👑',
+                            totalImpactCount: 500,
+                            rankName: 'Outreach Director',
+                            isAdmin: true
+                          }, 'local-system-admin');
+                        } else {
+                          setAuthError('Unauthorized: Admin key mismatch. Please check secret rules credentials.');
+                        }
+                      }}
+                      className="bg-indigo-650 hover:bg-indigo-750 text-white font-sans text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer transition active:scale-95"
+                    >
+                      Unlock
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {authError && (
               <div className="bg-red-50 text-red-650 border border-red-200 text-[11px] rounded-xl px-4 py-2.5 font-medium leading-relaxed">
