@@ -155,7 +155,8 @@ export default function AdBlock({ pageId, onEarnCoins, inline = false }: AdBlock
       'impact': 5,
       'rewards': 6,
       'admin': 7,
-      'cart': 8
+      'cart': 8,
+      'all': 0
     }[pageId] ?? 9;
 
     const primaryAd = ADS_DATA[primaryIndex];
