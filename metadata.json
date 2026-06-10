@@ -1,0 +1,6 @@
+{
+  "name": "Live Custom Clothing",
+  "description": "Charity-driven clothing brand, custom print shop, and gamified community store featuring real-time impact tracking and rewards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
