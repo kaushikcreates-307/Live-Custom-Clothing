@@ -131,7 +131,9 @@ export default function App() {
       unsubTasks();
       unsubStats();
     };
-  }, [isLoggedIn, currentUserId])  // Level Up logic handler
+  }, [isLoggedIn, currentUserId]); // Added closing bracket and semicolon
+
+  // Level Up logic handler follows cleanly below
   const handleAddXp = (xpGained: number) => {
     setUserProfile((prev) => {
       let nextXp = prev.xp + xpGained;
@@ -674,7 +676,7 @@ export default function App() {
 
             {/* Premium, eco-conscious non-intrusive Sponsorship Ad blocks on each page */}
             <div className="mt-12 pt-6 border-t border-slate-150">
-              <AdBlock pageId={activeTab} onEarnCoins={(c, x) => handleAwardCoins(c, x)} />
+              <AdBlock pageId={activeTab === 'profile' ? 'all' : activeTab} onEarnCoins={(c, x) => handleAwardCoins(c, x)} />
             </div>
           </motion.div>
         </AnimatePresence>
