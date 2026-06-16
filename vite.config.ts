@@ -5,16 +5,20 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: '', 
+    base: './', 
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
     },
+    build: {
+      outDir: 'docs', // <--- Force Vite to use the folder name GitHub wants
+      emptyOutDir: true,
+    },
     server: {
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
-  };  
+  };
 });
