@@ -94,7 +94,6 @@ export default function AdminPanel({
 
   // Action status triggers
   const [bannerNotice, setBannerNotice] = useState<{ text: string; type: 'success' | 'info' } | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const showNotice = (text: string, type: 'success' | 'info' = 'success') => {
     setBannerNotice({ text, type });
@@ -643,7 +642,6 @@ export default function AdminPanel({
 
               <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
                 {storeProducts.map((p) => {
-                  const isEditing = editingStoreProduct?.id === p.id;
                   return (
                     <div key={p.id} className="border border-slate-150 rounded-xl p-3 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                       <div className="flex items-center gap-3 w-full md:w-3/4">

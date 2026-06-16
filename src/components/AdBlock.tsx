@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, CheckCircle2, ArrowUpRight, HelpCircle, Eye } from 'lucide-react';
+import { Sparkles, CheckCircle2, ArrowUpRight, Eye } from 'lucide-react';
 
 export interface AdItem {
   id: string;
@@ -219,7 +219,7 @@ export default function AdBlock({ pageId, onEarnCoins, inline = false }: AdBlock
       </div>
 
       <div className={`grid grid-cols-1 ${pageId === 'all' ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-2'} gap-4`}>
-        {adsToShow.map((ad, idx) => {
+        {adsToShow.map((ad) => {
           const isClicked = clickedAds[ad.id];
           return (
             <motion.div

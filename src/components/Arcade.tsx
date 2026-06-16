@@ -240,22 +240,21 @@ export default function Arcade({ tasks, onCompleteTask, userCoins, onAwardCoins 
   // GAME 5: SUSTAINABILITY QUIZ CHALLENGE
   // ==========================================
   const [quizAnswered, setQuizAnswered] = useState<number | null>(null);
-  const [quizScore, setQuizScore] = useState<'correct' | 'wrong' | 'idle'>('idle');
-  const quizQuestion = {
-    q: 'How many gallons of water are typically saved by recycling just 1 cotton shirt instead of manufacturing a brand new one?',
-    options: [
-      'Approx 10 gallons',
-      'Approx 700 gallons (Growing cotton has a massive freshwater impact!)',
-      'Approx 50 gallons',
-      'Approx 120 gallons'
-    ],
-    correctIdx: 1
-  };
+  const [quizScore, setQuizScore] = useState<'idle' | 'correct' | 'wrong'>('idle');
 
   const handleSelectQuizOption = (idx: number) => {
     if (quizAnswered !== null) return;
     setQuizAnswered(idx);
-    if (idx === quizQuestion.correctIdx) {
+    if (idx === ({
+      q: 'How many gallons of water are typically saved by recycling just 1 cotton shirt instead of manufacturing a brand new one?',
+      options: [
+        'Approx 10 gallons',
+        'Approx 700 gallons (Growing cotton has a massive freshwater impact!)',
+        'Approx 50 gallons',
+        'Approx 120 gallons'
+      ],
+      correctIdx: 1
+    }).correctIdx) {
       setQuizScore('correct');
       showFeedback('📖 EXPERT LEVEL! +35 Star Coins added to reward profile.', 'success');
       onAwardCoins(35, 20);
@@ -806,16 +805,43 @@ export default function Arcade({ tasks, onCompleteTask, userCoins, onAwardCoins 
                       Trivia Challenge
                     </span>
                     <h3 className="text-sm md:text-base font-display font-semibold text-slate-100 leading-snug">
-                      {quizQuestion.q}
+                      {({
+                        q: 'How many gallons of water are typically saved by recycling just 1 cotton shirt instead of manufacturing a brand new one?',
+                        options: [
+                          'Approx 10 gallons',
+                          'Approx 700 gallons (Growing cotton has a massive freshwater impact!)',
+                          'Approx 50 gallons',
+                          'Approx 120 gallons'
+                        ],
+                        correctIdx: 1
+                      }).q}
                     </h3>
                   </div>
 
                   <div className="space-y-2.5 text-left">
-                    {quizQuestion.options.map((opt, oIdx) => {
+                    {({
+                      q: 'How many gallons of water are typically saved by recycling just 1 cotton shirt instead of manufacturing a brand new one?',
+                      options: [
+                        'Approx 10 gallons',
+                        'Approx 700 gallons (Growing cotton has a massive freshwater impact!)',
+                        'Approx 50 gallons',
+                        'Approx 120 gallons'
+                      ],
+                      correctIdx: 1
+                    }).options.map((opt, oIdx) => {
                       let btnStyle = 'border-slate-800 bg-slate-950/60 text-slate-300 hover:bg-slate-800/80';
                       
                       if (quizAnswered !== null) {
-                        if (oIdx === quizQuestion.correctIdx) {
+                        if (oIdx === ({
+                          q: 'How many gallons of water are typically saved by recycling just 1 cotton shirt instead of manufacturing a brand new one?',
+                          options: [
+                            'Approx 10 gallons',
+                            'Approx 700 gallons (Growing cotton has a massive freshwater impact!)',
+                            'Approx 50 gallons',
+                            'Approx 120 gallons'
+                          ],
+                          correctIdx: 1
+                        }).correctIdx) {
                           btnStyle = 'border-emerald-500/70 bg-emerald-950/40 text-emerald-100 font-bold';
                         } else if (oIdx === quizAnswered) {
                           btnStyle = 'border-rose-500/70 bg-rose-950/40 text-rose-100';
