@@ -13,8 +13,9 @@ export default defineConfig(() => {
       },
     },
     build: {
-      outDir: 'docs', // <--- Force Vite to use the folder name GitHub wants
+      outDir: 'docs',
       emptyOutDir: true,
+      chunkSizeWarningLimit: 1600, // <--- ADD THIS LINE (Raises the limit to 1.6MB)
     },
     server: {
       hmr: process.env.DISABLE_HMR !== 'true',
