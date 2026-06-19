@@ -162,29 +162,28 @@ export default function Storefront({ onAddToCart, cartItemsCount }: StorefrontPr
                   </span>
                 )}
 
-                <div className="space-y-4">
-                  {/* Visual clothing image or emoji */}
-                  <div className="w-full bg-slate-50 rounded-xl aspect-square flex justify-center items-center overflow-hidden shadow-inner relative group border border-slate-100">
-                    {p.imageUrl.startsWith('http') ? (
-                      <img
-                        src={p.imageUrl}
-                        alt={p.name}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                    ) : (
-                      <span className="text-4xl transform group-hover:scale-110 group-hover:rotate-6 transition duration-300">
-                        {p.imageUrl || '👕'}
-                      </span>
-                    )}
-                    <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-slate-900/10 to-transparent pointer-events-none" />
-                  </div>
+                {/* Visual clothing image or emoji */}
+                <div className="w-full bg-slate-50 rounded-xl aspect-square flex justify-center items-center overflow-hidden shadow-inner relative group border border-slate-100">
+                  {p.imageUrl || (p as any).image_url ? (
+                    <img
+                      src={p.imageUrl || (p as any).image_url}
+                      alt={p.name}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <span className="text-4xl transform group-hover:scale-110 group-hover:rotate-6 transition duration-300">
+                      👕
+                    </span>
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-slate-900/10 to-transparent pointer-events-none" />
+                </div>
 
                   <div className="space-y-1">
                     <div className="flex justify-between items-start">
                       <span className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-wider">{p.category}</span>
                       <div className="flex items-center text-amber-500 text-2xs font-bold gap-0.5">
-                        <Star size={10} fill="currentColor" /> {p.rating}
+                        <Star size={10} fill="currentColor" /> {p.rating || 5.0}
                       </div>
                     </div>
                     <h4 className="font-display font-extrabold text-slate-800 text-sm tracking-tight leading-tight group-hover:text-indigo-600 transition">
@@ -194,7 +193,6 @@ export default function Storefront({ onAddToCart, cartItemsCount }: StorefrontPr
                       {p.description}
                     </p>
                   </div>
-                </div>
 
                 {/* Sizes and actions columns selector panel */}
                 <div className="space-y-4 pt-3.5 mt-4 border-t border-slate-100">
@@ -224,7 +222,7 @@ export default function Storefront({ onAddToCart, cartItemsCount }: StorefrontPr
 
                   <div className="flex justify-between items-center bg-slate-50 rounded-xl p-2.5 border border-slate-100">
                     <div className="font-mono text-base font-extrabold text-slate-800 shrink-0">
-                      ${p.price.toFixed(2)}
+                      ${(p.price || 0).toFixed(2)}
                     </div>
 
                     <button
