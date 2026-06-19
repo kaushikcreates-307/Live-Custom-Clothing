@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product } from '../types';
-import { STORE_PRODUCTS } from '../data/products';
+import { supabase } from '../lib/supabase'; // Connected to your free backend instance
 import { Star, ShieldAlert, Heart, ShoppingBag, SlidersHorizontal, Search, Sparkles, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -21,18 +21,41 @@ const CATEGORIES = [
 ];
 
 interface StorefrontProps {
-  products?: Product[];
   onAddToCart: (p: Product, size: string) => void;
   cartItemsCount: number;
 }
 
-export default function Storefront({ products = STORE_PRODUCTS, onAddToCart, cartItemsCount }: StorefrontProps) {
+export default function Storefront({ onAddToCart, cartItemsCount }: StorefrontProps) {
+  // 1. Dynamic State Channels
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All Products');
   const [searchQuery, setSearchQuery] = useState('');
   const [sizeSelectorId, setSizeSelectorId] = useState<string | null>(null);
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
   const [feedbackId, setFeedbackId] = useState<string | null>(null);
 
+  // 2. Fetch inventory directly from your Supabase table on load
+  useEffect(() => {
+    async function fetchLiveCatalog() {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('products')
+          .select('*');
+        
+        if (error) throw error;
+        if (data) setProducts(data as Product[]);
+      } catch (err) {
+        console.error("Error streaming inventory lines from Supabase:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchLiveCatalog();
+  }, []);
+
+  // 3. Search and filtering calculations (Using live database records)
   const filteredProducts = products.filter((p) => {
     const matchesCategory = activeCategory === 'All Products' || p.category === activeCategory;
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -45,7 +68,6 @@ export default function Storefront({ products = STORE_PRODUCTS, onAddToCart, car
   };
 
   const handleQuickAdd = (p: Product) => {
-    // If sizing exists, find active or default to "M" or open sizing Drawer
     const sizeNeeded = p.sizes && p.sizes.length > 0;
     const chosenSize = selectedSizes[p.id] || (sizeNeeded ? 'M' : 'One Size');
     
@@ -55,6 +77,16 @@ export default function Storefront({ products = STORE_PRODUCTS, onAddToCart, car
       setFeedbackId(null);
     }, 1500);
   };
+
+  // Loading Skeleton State
+  if (loading) {
+    return (
+      <div className="text-center py-24 font-sans space-y-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+        <p className="text-xs text-slate-400 font-mono">STREAMING LIVE CATALOG PIPELINES...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto py-4">
@@ -145,7 +177,6 @@ export default function Storefront({ products = STORE_PRODUCTS, onAddToCart, car
                         {p.imageUrl || '👕'}
                       </span>
                     )}
-                    {/* Ambient visual shapes background to give premium look */}
                     <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-slate-900/10 to-transparent pointer-events-none" />
                   </div>
 
